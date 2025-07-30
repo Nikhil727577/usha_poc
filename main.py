@@ -49,6 +49,8 @@ async def identify_fan(image: UploadFile = File(...)):
         "matched_fan": best_match["Fan Name"],
         "product_id": best_match["Product ID"],
         "fan_type": best_match["Fan Type"],
+        "Manufacturing_Date":best_match["Manufacturing Date"],
+        "warranty period":best_match["Warranty Period"],
         "similarity_score": f"{round(similarities[best_idx].item() * 100, 2)}%"
     }
 
