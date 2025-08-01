@@ -1,0 +1,31 @@
+name: Deploy FastAPI to Azure VM
+
+on:
+  push:
+    branches:
+      - main  # change if your main branch is named differently
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.AZURE_VM_SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.AZURE_VM_HOST }} >> ~/.ssh/known_hosts
+
+    - name: Deploy to Azure VM
+      run: |
+        ssh ${{ secrets.AZURE_VM_USERNAME }}@${{ secrets.AZURE_VM_HOST }} << 'EOF'
+          cd /home/${{ secrets.AZURE_VM_USERNAME }}/your-fastapi-project  # update path
+          git pull origin main
+          source venv/bin/activate     # or your virtualenv path
+          pip install -r requirements.txt
+          sudo systemctl restart fastapi-app.service  # or your service name
+        EOF
